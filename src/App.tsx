@@ -1,16 +1,16 @@
 import './App.css'
 import { Route, Routes } from 'react-router-dom'
-import login from './Auth/login'
+import Home from './pages/Home'
+import Login from './Auth/login'
+import Profile from './pages/profile'
 
 function App() {
   return (
     <Routes>
-      <Route path="/" element={<div>Home Pag</div>} />
-      <Route path="/login" element={<div>Login Page</div>} />
-      <Route path="/register" element={<div>Register Page</div>} />
-      <Route path="/dashboard" element={<div>Dashboard Page</div>} />
-      <Route path="/profile" element={<div>Profile Page</div>} />
-      <Route path="/settings" element={<div>Settings Page</div>} />
+      <Route path="/" element={<Home />} />
+      <Route path="/login" element={<Login />} />
+      <Route path="/profile" element={<Profile />} />
+      {/* Add more routes as needed */}
     </Routes>
   )
 

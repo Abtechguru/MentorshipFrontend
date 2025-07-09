@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import axios from 'axios';
-import { useShopContext } from '../context'; // Fixed import syntax
-import { useNavigate } from 'react-router-dom'; // Fixed typo in import path
+import axios from 'axios'
+import { useShopContext } from '../context'
+import { useNavigate } from 'react-router-dom'
 
 interface LoginResponse {
   token: string;
@@ -9,20 +9,18 @@ interface LoginResponse {
     id: string;
     name?: string;
     email: string;
-    role: string;
+    role: string; 
   };
 }
 
 function Login() {
   const navigate = useNavigate();
   const context = useShopContext();
-  const backendUrl = context?.backendUrl || '';
-
+const backendUrl = context?.backendUrl || 'https://mentorship-1-jpz3.onrender.com'; // Default URL if not provided
   const [email, setEmail] = useState<string>('');
   const [password, setPassword] = useState<string>('');
   const [isLoading, setIsLoading] = useState<boolean>(false);
-  const [error, setError] = useState<string>(''); // Added error state
-
+  const [error, setError] = useState<string>('');
   const submit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setIsLoading(true);
@@ -30,21 +28,24 @@ function Login() {
 
     try {
       const response = await axios.post<LoginResponse>(
-        `${backendUrl}/api/auth/login`, // Backtick string instead of single quote
-        { email, password }
+        `${backendUrl}/api/auth/login`,
+        { email, password } 
       );
-
-      if (response.status === 200) {
-        navigate('/');
-      }
-    } catch (error: any) {
-      console.error(error);
-      setError('Login failed. Please try again.');
+if (response.status === 200) {
+  navigate('/'); // Redirect to home page on successful login
+} else {
+  setError('Login failed. Please check your credentials.');
+      //if (response.data.user.role === "admin") {
+        //navigate('/admin');
+     // }
+    } } catch (error) {
+  const err = error as Error;
+  console.error(err);
+  setError('Login failed. Please try again.');
     } finally {
       setIsLoading(false);
     }
-  };
-
+  }
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-100 to-indigo-200 flex items-center justify-center px-4">
       <div className="bg-white shadow-lg rounded-xl w-full max-w-md p-8 space-y-6">
