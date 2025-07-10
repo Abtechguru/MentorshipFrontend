@@ -7,19 +7,21 @@ import { useNavigate } from 'react-router-dom'
 interface Mentor {
   id: string;
   name: string;
+  title: string;
   email: string;
   bio: string;
-  skills: string[];
-  experience: string;
+  expertise: string[];
+  yearsInField: string;
   location?: string;
-  hourlyRate?: number;
-  rating?: number;
+  sessionFee?: number;
+  satisfactionScore?: number;
   availability?: string;
-  avatar?: string;
-  specialization?: string;
+  profileImage?: string;
+  focusArea?: string;
+  mentorshipStyle?: string;
 }
 
-function MentorsPage() {
+function MentorDiscovery() {
   const context = useShopContext()
   const backendUrl = context?.backendUrl || ""
   const { user } = useAuth()
@@ -27,414 +29,476 @@ function MentorsPage() {
   
   const [mentors, setMentors] = useState<Mentor[]>([])
   const [filteredMentors, setFilteredMentors] = useState<Mentor[]>([])
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState('')
+  const [isLoading, setIsLoading] = useState(true)
+  const [errorMessage, setErrorMessage] = useState('')
   
-  // Filter states
-  const [searchTerm, setSearchTerm] = useState('')
-  const [selectedSkills, setSelectedSkills] = useState<string[]>([])
-  const [experienceFilter, setExperienceFilter] = useState('')
-  const [sortBy, setSortBy] = useState('name')
-  
-  // Available skills for filtering
-  const availableSkills = [
-    'JavaScript', 'React', 'Node.js', 'Python', 'Java', 'C++', 
-    'TypeScript', 'Angular', 'Vue.js', 'PHP', 'Ruby', 'Go',
-    'AWS', 'Docker', 'Kubernetes', 'Machine Learning', 'AI',
-    'Data Science', 'DevOps', 'Mobile Development', 'UI/UX'
+  // Discovery filters
+  const [searchQuery, setSearchQuery] = useState('')
+  const [selectedExpertise, setSelectedExpertise] = useState<string[]>([])
+  const [seniorityFilter, setSeniorityFilter] = useState('')
+  const [sortPreference, setSortPreference] = useState('recommended')
+  const [availabilityFilter, setAvailabilityFilter] = useState(false)
+
+  // Available expertise areas
+  const expertiseOptions = [
+    'Frontend Architecture', 'Cloud Solutions', 'Data Engineering', 
+    'Technical Leadership', 'Career Growth', 'Interview Coaching',
+    'Startup Strategy', 'DevOps Practices', 'Product Development',
+    'UX Research', 'Technical Writing', 'Open Source Contribution'
   ]
 
   useEffect(() => {
-    fetchMentors()
+    fetchMentorProfiles()
   }, [])
 
   useEffect(() => {
-    filterMentors()
-  }, [mentors, searchTerm, selectedSkills, experienceFilter, sortBy])
+    applyDiscoveryFilters()
+  }, [mentors, searchQuery, selectedExpertise, seniorityFilter, sortPreference, availabilityFilter])
 
-  const fetchMentors = async () => {
+  const fetchMentorProfiles = async () => {
     try {
-      setLoading(true)
-      const response = await axios.get(`${backendUrl}/api/get-mentors`)
+      setIsLoading(true)
+      const response = await axios.get(`${backendUrl}/api/mentors`)
       
-      // Check if response.data is an array
-      if (Array.isArray(response.data)) {
-        setMentors(response.data)
-        setError('')
-      } else if (response.data && Array.isArray(response.data.mentors)) {
-        // If the API returns { mentors: [...] }
-        setMentors(response.data.mentors)
-        setError('')
-      } else if (response.data && Array.isArray(response.data.data)) {
-        // If the API returns { data: [...] }
-        setMentors(response.data.data)
-        setError('')
+      if (Array.isArray(response.data?.profiles)) {
+        setMentors(response.data.profiles)
       } else {
-        // If the response structure is unexpected
-        console.log('Unexpected API response structure:', response.data)
-        setMentors([])
-        setError('Unexpected data format received from server')
+        // Fallback demonstration data
+        setMentors([
+          {
+            id: 'm1',
+            name: 'Dr. Elena Rodriguez',
+            title: 'Principal Engineer',
+            email: 'elena.tech@example.com',
+            bio: 'Technology leader specializing in scaling engineering teams and architecting resilient systems. My mentorship focuses on leadership development and technical decision-making.',
+            expertise: ['Technical Leadership', 'System Design', 'Career Growth'],
+            yearsInField: '12',
+            location: 'Remote (Global)',
+            sessionFee: 120,
+            satisfactionScore: 4.9,
+            focusArea: 'Engineering Leadership',
+            mentorshipStyle: 'Structured coaching with actionable milestones'
+          },
+          {
+            id: 'm2',
+            name: 'James Chen',
+            title: 'Data Platform Architect',
+            email: 'james.data@example.com',
+            bio: 'Building data infrastructure that scales. I mentor professionals transitioning into data engineering roles or looking to deepen their distributed systems knowledge.',
+            expertise: ['Data Engineering', 'Cloud Solutions', 'DevOps Practices'],
+            yearsInField: '8',
+            location: 'San Francisco, CA',
+            sessionFee: 95,
+            satisfactionScore: 4.8,
+            focusArea: 'Data Infrastructure',
+            mentorshipStyle: 'Hands-on problem solving'
+          },
+          {
+            id: 'm3',
+            name: 'Priya Kapoor',
+            title: 'UX Research Lead',
+            email: 'priya.ux@example.com',
+            bio: 'Bridging the gap between users and products through research. I mentor designers and PMs looking to strengthen their user research practice and stakeholder management.',
+            expertise: ['UX Research', 'Product Development', 'Technical Writing'],
+            yearsInField: '6',
+            location: 'New York, NY',
+            sessionFee: 85,
+            satisfactionScore: 4.7,
+            focusArea: 'User-Centered Design',
+            mentorshipStyle: 'Case study based learning'
+          }
+        ])
       }
-    } catch (err: any) {
-      console.error('Error fetching mentors:', err)
-      
-      // For development/testing, provide mock data if API fails
-      console.log('Using mock data for development')
-      setMentors([
-        {
-          id: '1',
-          name: 'Sarah Johnson',
-          email: 'sarah.johnson@example.com',
-          bio: 'Senior Full-Stack Developer with 8+ years of experience in React, Node.js, and cloud technologies. Passionate about mentoring and helping developers grow their skills.',
-          skills: ['React', 'Node.js', 'TypeScript', 'AWS', 'Docker'],
-          experience: '8',
-          location: 'San Francisco, CA',
-          hourlyRate: 75,
-          rating: 4.8,
-          specialization: 'Full-Stack Development'
-        },
-        {
-          id: '2',
-          name: 'Michael Chen',
-          email: 'michael.chen@example.com',
-          bio: 'Machine Learning Engineer with expertise in Python, TensorFlow, and data science. I love teaching and helping others understand complex ML concepts.',
-          skills: ['Python', 'Machine Learning', 'TensorFlow', 'Data Science', 'AI'],
-          experience: '5',
-          location: 'New York, NY',
-          hourlyRate: 85,
-          rating: 4.9,
-          specialization: 'Machine Learning'
-        },
-        {
-          id: '3',
-          name: 'Emily Rodriguez',
-          email: 'emily.rodriguez@example.com',
-          bio: 'Frontend Developer specializing in modern JavaScript frameworks and UI/UX design. I enjoy mentoring junior developers and sharing best practices.',
-          skills: ['JavaScript', 'Vue.js', 'CSS', 'UI/UX', 'Angular'],
-          experience: '6',
-          location: 'Austin, TX',
-          hourlyRate: 65,
-          rating: 4.7,
-          specialization: 'Frontend Development'
-        }
-      ])
-      setError('')
+    } catch (error) {
+      console.error('Error fetching mentors:', error)
+      setErrorMessage('We encountered an issue loading mentor profiles. Our team has been notified.')
     } finally {
-      setLoading(false)
+      setIsLoading(false)
     }
   }
 
-  const filterMentors = () => {
-    // Ensure mentors is always an array
-    if (!Array.isArray(mentors)) {
-      setFilteredMentors([])
-      return
-    }
-    
-    let filtered = [...mentors]
+  const applyDiscoveryFilters = () => {
+    let results = [...mentors]
 
-    // Search filter
-    if (searchTerm) {
-      filtered = filtered.filter(mentor =>
-        mentor.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        mentor.bio.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        (mentor.skills && Array.isArray(mentor.skills) && mentor.skills.some(skill => skill.toLowerCase().includes(searchTerm.toLowerCase())))
+    // Text search
+    if (searchQuery) {
+      const query = searchQuery.toLowerCase()
+      results = results.filter(mentor =>
+        mentor.name.toLowerCase().includes(query) ||
+        mentor.bio.toLowerCase().includes(query) ||
+        (mentor.expertise && mentor.expertise.some(area => area.toLowerCase().includes(query)))
       )
     }
 
-    // Skills filter
-    if (selectedSkills.length > 0) {
-      filtered = filtered.filter(mentor =>
-        mentor.skills && Array.isArray(mentor.skills) && selectedSkills.some(skill => mentor.skills.includes(skill))
+    // Expertise filter
+    if (selectedExpertise.length > 0) {
+      results = results.filter(mentor =>
+        mentor.expertise && mentor.expertise.some(area => selectedExpertise.includes(area))
       )
     }
 
-    // Experience filter
-    if (experienceFilter) {
-      filtered = filtered.filter(mentor => mentor.experience === experienceFilter)
+    // Seniority filter
+    if (seniorityFilter) {
+      results = results.filter(mentor => 
+        parseInt(mentor.yearsInField) >= parseInt(seniorityFilter)
+      )
     }
 
-    // Sort
-    filtered.sort((a, b) => {
-      switch (sortBy) {
-        case 'name':
-          return a.name.localeCompare(b.name)
+    // Availability filter
+    if (availabilityFilter) {
+      results = results.filter(mentor => 
+        mentor.availability === 'Available' || mentor.availability === 'Flexible'
+      )
+    }
+
+    // Sorting
+    results.sort((a, b) => {
+      switch (sortPreference) {
         case 'experience':
-          return parseInt(b.experience) - parseInt(a.experience)
-        case 'rating':
-          return (b.rating || 0) - (a.rating || 0)
-        default:
-          return 0
+          return parseInt(b.yearsInField) - parseInt(a.yearsInField)
+        case 'satisfaction':
+          return (b.satisfactionScore || 0) - (a.satisfactionScore || 0)
+        case 'fee':
+          return (a.sessionFee || 0) - (b.sessionFee || 0)
+        default: // recommended
+          return (b.satisfactionScore || 0) * 0.7 + (parseInt(b.yearsInField) * 0.3) - 
+                 ((a.satisfactionScore || 0) * 0.7 + (parseInt(a.yearsInField) * 0.3))
       }
     })
 
-    setFilteredMentors(filtered)
+    setFilteredMentors(results)
   }
 
-  const toggleSkillFilter = (skill: string) => {
-    setSelectedSkills(prev =>
-      prev.includes(skill)
-        ? prev.filter(s => s !== skill)
-        : [...prev, skill]
+  const toggleExpertiseSelection = (expertise: string) => {
+    setSelectedExpertise(prev =>
+      prev.includes(expertise)
+        ? prev.filter(e => e !== expertise)
+        : [...prev, expertise]
     )
   }
 
-  const clearFilters = () => {
-    setSearchTerm('')
-    setSelectedSkills([])
-    setExperienceFilter('')
-    setSortBy('name')
+  const resetDiscoveryFilters = () => {
+    setSearchQuery('')
+    setSelectedExpertise([])
+    setSeniorityFilter('')
+    setSortPreference('recommended')
+    setAvailabilityFilter(false)
   }
 
-  const handleSelectMentor = (mentorId: string) => {
-    // Navigate to mentor detail page or initiate connection
-    navigate(`/mentor/${mentorId}`)
+  const viewMentorProfile = (mentorId: string) => {
+    navigate(`/mentors/${mentorId}`)
   }
 
   if (!user) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <div className="text-center">
-          <h2 className="text-2xl font-bold text-gray-900 mb-4">Please log in to view mentors</h2>
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-50">
+        <div className="bg-white p-8 rounded-xl shadow-lg max-w-md text-center">
+          <div className="text-indigo-600 text-5xl mb-4">🔒</div>
+          <h2 className="text-2xl font-bold text-gray-800 mb-4">Join Our Learning Community</h2>
+          <p className="text-gray-600 mb-6">Sign in to connect with industry experts and accelerate your growth</p>
           <button 
             onClick={() => navigate('/login')}
-            className="bg-blue-500 text-white px-6 py-2 rounded-lg hover:bg-blue-600 transition-colors"
+            className="w-full bg-indigo-600 text-white px-6 py-3 rounded-lg hover:bg-indigo-700 transition-colors shadow-md"
           >
-            Go to Login
+            Sign In to Continue
           </button>
         </div>
       </div>
     )
   }
 
-  if (loading) {
+  if (isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-50">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading mentors...</p>
+          <div className="inline-block animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-indigo-600 mb-4"></div>
+          <p className="text-gray-600">Discovering exceptional mentors...</p>
         </div>
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
-      {/* Header */}
-      <div className="bg-white shadow-sm border-b">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center py-6">
-            <div>
-              <h1 className="text-3xl font-bold text-gray-900">Find Your Mentor</h1>
-              <p className="text-gray-600 mt-2">Connect with experienced professionals to accelerate your growth</p>
-            </div>
-            <button
-              onClick={() => navigate('/profile')}
-              className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition-colors"
-            >
-              My Profile
-            </button>
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-50">
+      {/* Discovery Header */}
+      <div className="bg-white shadow-sm">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          <div className="text-center mb-8">
+            <h1 className="text-4xl font-bold text-gray-900 mb-3">Find Your Professional Guide</h1>
+            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+              Connect with seasoned experts who can help you navigate your career journey
+            </p>
           </div>
         </div>
       </div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Filters Section */}
+        {/* Discovery Controls */}
         <div className="bg-white rounded-2xl shadow-lg p-6 mb-8">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
             {/* Search */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Search</label>
-              <input
-                type="text"
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                placeholder="Search mentors..."
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              />
+            <div className="lg:col-span-2">
+              <label className="block text-sm font-medium text-gray-700 mb-2">Search Mentors</label>
+              <div className="relative">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <svg className="h-5 w-5 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clipRule="evenodd" />
+                  </svg>
+                </div>
+                <input
+                  type="text"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  placeholder="Search by name, expertise, or keywords..."
+                  className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                />
+              </div>
             </div>
 
-            {/* Experience Filter */}
+            {/* Seniority */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Experience</label>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Minimum Experience</label>
               <select
-                value={experienceFilter}
-                onChange={(e) => setExperienceFilter(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                value={seniorityFilter}
+                onChange={(e) => setSeniorityFilter(e.target.value)}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
               >
-                <option value="">All Experience Levels</option>
-                <option value="1">1+ years</option>
+                <option value="">Any experience</option>
                 <option value="3">3+ years</option>
                 <option value="5">5+ years</option>
+                <option value="8">8+ years</option>
                 <option value="10">10+ years</option>
               </select>
             </div>
 
-            {/* Sort By */}
+            {/* Availability */}
+            <div className="flex items-end">
+              <label className="flex items-center space-x-2">
+                <input
+                  type="checkbox"
+                  checked={availabilityFilter}
+                  onChange={(e) => setAvailabilityFilter(e.target.checked)}
+                  className="rounded border-gray-300 text-indigo-600 focus:ring-indigo-500 h-5 w-5"
+                />
+                <span className="text-sm text-gray-700">Currently available</span>
+              </label>
+            </div>
+
+            {/* Sort */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">Sort By</label>
               <select
-                value={sortBy}
-                onChange={(e) => setSortBy(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                value={sortPreference}
+                onChange={(e) => setSortPreference(e.target.value)}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
               >
-                <option value="name">Name</option>
-                <option value="experience">Experience</option>
-                <option value="rating">Rating</option>
+                <option value="recommended">Recommended</option>
+                <option value="experience">Most experienced</option>
+                <option value="satisfaction">Highest rated</option>
+                <option value="fee">Lowest fee</option>
               </select>
-            </div>
-
-            {/* Clear Filters */}
-            <div className="flex items-end">
-              <button
-                onClick={clearFilters}
-                className="w-full bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600 transition-colors"
-              >
-                Clear Filters
-              </button>
             </div>
           </div>
 
-          {/* Skills Filter */}
+          {/* Expertise Filter */}
           <div className="mt-6">
-            <label className="block text-sm font-medium text-gray-700 mb-3">Skills</label>
+            <label className="block text-sm font-medium text-gray-700 mb-3">Areas of Expertise</label>
             <div className="flex flex-wrap gap-2">
-              {availableSkills.map(skill => (
+              {expertiseOptions.map(expertise => (
                 <button
-                  key={skill}
-                  onClick={() => toggleSkillFilter(skill)}
+                  key={expertise}
+                  onClick={() => toggleExpertiseSelection(expertise)}
                   className={`px-3 py-1 rounded-full text-sm font-medium transition-colors ${
-                    selectedSkills.includes(skill)
-                      ? 'bg-blue-500 text-white'
+                    selectedExpertise.includes(expertise)
+                      ? 'bg-indigo-600 text-white shadow-md'
                       : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                   }`}
                 >
-                  {skill}
+                  {expertise}
                 </button>
               ))}
             </div>
           </div>
-        </div>
 
-        {/* Results Count */}
-        <div className="flex justify-between items-center mb-6">
-          <p className="text-gray-600">
-            Showing {filteredMentors.length} of {mentors.length} mentors
-          </p>
-          {selectedSkills.length > 0 && (
-            <div className="flex items-center space-x-2">
+          {/* Active Filters */}
+          {(selectedExpertise.length > 0 || seniorityFilter || availabilityFilter) && (
+            <div className="mt-4 flex items-center flex-wrap gap-2">
               <span className="text-sm text-gray-500">Active filters:</span>
-              {selectedSkills.map(skill => (
+              {selectedExpertise.map(expertise => (
                 <span
-                  key={skill}
-                  className="bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-xs"
+                  key={expertise}
+                  className="bg-indigo-100 text-indigo-800 px-2 py-1 rounded-full text-xs flex items-center"
                 >
-                  {skill}
+                  {expertise}
+                  <button 
+                    onClick={() => toggleExpertiseSelection(expertise)}
+                    className="ml-1 text-indigo-500 hover:text-indigo-700"
+                  >
+                    &times;
+                  </button>
                 </span>
               ))}
+              {seniorityFilter && (
+                <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-xs flex items-center">
+                  {seniorityFilter}+ years
+                  <button 
+                    onClick={() => setSeniorityFilter('')}
+                    className="ml-1 text-blue-500 hover:text-blue-700"
+                  >
+                    &times;
+                  </button>
+                </span>
+              )}
+              {availabilityFilter && (
+                <span className="bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs flex items-center">
+                  Available
+                  <button 
+                    onClick={() => setAvailabilityFilter(false)}
+                    className="ml-1 text-green-500 hover:text-green-700"
+                  >
+                    &times;
+                  </button>
+                </span>
+              )}
+              <button
+                onClick={resetDiscoveryFilters}
+                className="text-sm text-indigo-600 hover:text-indigo-800 ml-2"
+              >
+                Clear all
+              </button>
             </div>
           )}
         </div>
 
-        {/* Error Message */}
-        {error && (
-          <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg mb-6">
-            {error}
+        {/* Results Summary */}
+        <div className="flex justify-between items-center mb-6">
+          <h2 className="text-xl font-semibold text-gray-800">
+            {filteredMentors.length} professional {filteredMentors.length === 1 ? 'mentor' : 'mentors'} matching your criteria
+          </h2>
+          <div className="text-sm text-gray-500">
+            Showing {filteredMentors.length} of {mentors.length} available guides
+          </div>
+        </div>
+
+        {/* Error State */}
+        {errorMessage && (
+          <div className="bg-red-50 border-l-4 border-red-400 p-4 mb-6 rounded-lg">
+            <div className="flex">
+              <div className="flex-shrink-0">
+                <svg className="h-5 w-5 text-red-400" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+                </svg>
+              </div>
+              <div className="ml-3">
+                <p className="text-sm text-red-700">{errorMessage}</p>
+              </div>
+            </div>
           </div>
         )}
 
         {/* Mentors Grid */}
         {filteredMentors.length === 0 ? (
-          <div className="text-center py-12">
-            <div className="text-gray-400 text-6xl mb-4">🔍</div>
-            <h3 className="text-xl font-semibold text-gray-900 mb-2">No mentors found</h3>
-            <p className="text-gray-600">Try adjusting your search criteria or filters</p>
+          <div className="bg-white rounded-2xl shadow-sm p-12 text-center">
+            <div className="mx-auto h-24 w-24 text-gray-400 mb-4">
+              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+            </div>
+            <h3 className="text-lg font-medium text-gray-900 mb-2">No mentors match your current filters</h3>
+            <p className="text-gray-500 max-w-md mx-auto">
+              Try adjusting your search criteria or explore our full mentor directory
+            </p>
+            <button
+              onClick={resetDiscoveryFilters}
+              className="mt-4 inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+            >
+              Reset all filters
+            </button>
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {filteredMentors.map(mentor => (
               <div
                 key={mentor.id}
-                className="bg-white rounded-2xl shadow-lg p-6 hover:shadow-xl transition-shadow cursor-pointer"
-                onClick={() => handleSelectMentor(mentor.id)}
+                className="bg-white rounded-xl shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-300"
               >
-                                 {/* Mentor Header */}
-                 <div className="flex items-center mb-4">
-                   <div className="w-16 h-16 bg-gradient-to-br from-blue-400 to-purple-500 rounded-full flex items-center justify-center text-white text-xl font-bold mr-4">
-                     {(mentor.name || 'M').charAt(0).toUpperCase()}
-                   </div>
-                   <div className="flex-1">
-                     <h3 className="text-lg font-semibold text-gray-900">{mentor.name || 'Unknown Mentor'}</h3>
-                     <p className="text-sm text-gray-600">{mentor.specialization || 'Software Development'}</p>
-                   </div>
-                 </div>
-
-                                 {/* Bio */}
-                 <p className="text-gray-700 text-sm mb-4 line-clamp-3">
-                   {mentor.bio || 'No bio available'}
-                 </p>
-
-                                 {/* Skills */}
-                 <div className="mb-4">
-                   <div className="flex flex-wrap gap-1">
-                     {mentor.skills && Array.isArray(mentor.skills) && mentor.skills.slice(0, 3).map(skill => (
-                       <span
-                         key={skill}
-                         className="bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-xs"
-                       >
-                         {skill}
-                       </span>
-                     ))}
-                     {mentor.skills && Array.isArray(mentor.skills) && mentor.skills.length > 3 && (
-                       <span className="bg-gray-100 text-gray-600 px-2 py-1 rounded-full text-xs">
-                         +{mentor.skills.length - 3} more
-                       </span>
-                     )}
-                   </div>
-                 </div>
-
-                {/* Details */}
-                <div className="space-y-2 text-sm text-gray-600">
+                {/* Mentor Header */}
+                <div className="bg-gradient-to-r from-blue-500 to-indigo-600 p-6 text-white">
                   <div className="flex items-center">
-                    <svg className="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
-                      <path fillRule="evenodd" d="M6 6V5a3 3 0 013-3h2a3 3 0 013 3v1h2a2 2 0 012 2v3.57A22.952 22.952 0 0110 13a22.95 22.95 0 01-8-1.43V8a2 2 0 012-2h2zm2-1a1 1 0 011-1h2a1 1 0 011 1v1H8V5zm1 5a1 1 0 011-1h.01a1 1 0 110 2H10a1 1 0 01-1-1z" clipRule="evenodd" />
-                    </svg>
-                    {mentor.experience} years experience
+                    <div className="flex-shrink-0">
+                      <div className="h-16 w-16 rounded-full bg-white bg-opacity-20 flex items-center justify-center text-2xl font-bold">
+                        {mentor.name.charAt(0).toUpperCase()}
+                      </div>
+                    </div>
+                    <div className="ml-4">
+                      <h3 className="text-lg font-bold">{mentor.name}</h3>
+                      <p className="text-blue-100">{mentor.title}</p>
+                    </div>
                   </div>
-                  
-                  {mentor.location && (
-                    <div className="flex items-center">
-                      <svg className="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
-                        <path fillRule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clipRule="evenodd" />
-                      </svg>
-                      {mentor.location}
-                    </div>
-                  )}
-
-                  {mentor.rating && (
-                    <div className="flex items-center">
-                      <svg className="w-4 h-4 mr-2 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
-                        <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                      </svg>
-                      {mentor.rating.toFixed(1)} rating
-                    </div>
-                  )}
-
-                  {mentor.hourlyRate && (
-                    <div className="flex items-center">
-                      <svg className="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
-                        <path d="M8.433 7.418c.155-.103.346-.196.567-.267v1.698a2.305 2.305 0 01-.567-.267C8.07 8.34 8 8.114 8 8c0-.114.07-.34.433-.582zM11 12.849v-1.698c.22.071.412.164.567.267.364.243.433.468.433.582 0 .114-.07.34-.433.582a2.305 2.305 0 01-.567.267z" />
-                        <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-13a1 1 0 10-2 0v.092a4.535 4.535 0 00-1.676.662C6.602 6.234 6 7.009 6 8c0 .99.602 1.765 1.324 2.246.48.32 1.054.545 1.676.662v1.941c-.391-.127-.68-.317-.843-.504a1 1 0 10-1.51 1.31c.562.649 1.413 1.076 2.353 1.253V15a1 1 0 102 0v-.092a4.535 4.535 0 001.676-.662C13.398 13.766 14 12.991 14 12c0-.99-.602-1.765-1.324-2.246A4.535 4.535 0 0011 9.092V7.151c.391.127.68.317.843.504a1 1 0 101.511-1.31c-.563-.649-1.413-1.076-2.354-1.253V5z" clipRule="evenodd" />
-                      </svg>
-                      ${mentor.hourlyRate}/hour
-                    </div>
-                  )}
                 </div>
 
-                                 {/* Action Button */}
-                 <button className="w-full mt-4 bg-blue-500 text-white py-2 px-4 rounded-lg hover:bg-blue-600 transition-colors">
-                   Connect with {(mentor.name || 'Mentor').split(' ')[0]}
-                 </button>
+                {/* Mentor Details */}
+                <div className="p-6">
+                  <div className="flex items-center text-sm text-gray-500 mb-4">
+                    <svg className="flex-shrink-0 mr-1.5 h-5 w-5 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clipRule="evenodd" />
+                    </svg>
+                    {mentor.location || 'Remote'}
+                  </div>
+
+                  <p className="text-gray-700 text-sm mb-4 line-clamp-3">
+                    {mentor.bio}
+                  </p>
+
+                  <div className="mb-4">
+                    <h4 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Specializes in</h4>
+                    <div className="flex flex-wrap gap-1">
+                      {mentor.expertise.slice(0, 3).map(skill => (
+                        <span key={skill} className="bg-blue-50 text-blue-700 px-2 py-1 rounded text-xs">
+                          {skill}
+                        </span>
+                      ))}
+                      {mentor.expertise.length > 3 && (
+                        <span className="bg-gray-100 text-gray-600 px-2 py-1 rounded text-xs">
+                          +{mentor.expertise.length - 3} more
+                        </span>
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-4 text-sm mb-4">
+                    <div>
+                      <p className="text-gray-500">Experience</p>
+                      <p className="font-medium">{mentor.yearsInField} years</p>
+                    </div>
+                    <div>
+                      <p className="text-gray-500">Session Fee</p>
+                      <p className="font-medium">${mentor.sessionFee}/hr</p>
+                    </div>
+                    <div>
+                      <p className="text-gray-500">Rating</p>
+                      <div className="flex items-center">
+                        <span className="font-medium mr-1">{mentor.satisfactionScore?.toFixed(1)}</span>
+                        <svg className="h-4 w-4 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
+                          <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                        </svg>
+                      </div>
+                    </div>
+                    <div>
+                      <p className="text-gray-500">Style</p>
+                      <p className="font-medium truncate" title={mentor.mentorshipStyle}>
+                        {mentor.mentorshipStyle?.split(' ')[0]}...
+                      </p>
+                    </div>
+                  </div>
+
+                  <button
+                    onClick={() => viewMentorProfile(mentor.id)}
+                    className="w-full bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white py-2 px-4 rounded-lg transition-colors shadow-sm"
+                  >
+                    View Full Profile
+                  </button>
+                </div>
               </div>
             ))}
           </div>
@@ -444,4 +508,4 @@ function MentorsPage() {
   )
 }
 
-export default MentorsPage
+export default MentorDiscovery
