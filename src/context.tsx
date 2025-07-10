@@ -1,46 +1,33 @@
-import React, { createContext, useContext, useState, ReactNode } from 'react';
+import React, { type ReactNode } from 'react'
+import { createContext,useContext, } from 'react'
+
 interface ShopContextType {
-    backendUrl: string;
-    isAuthenticated: boolean;
-    userRole?: 'admin' | 'mentor' | 'mentee';
-    setAuth?: (auth: boolean) => void;
+    backendUrl : string;
 }
 
-export const ShopContext = createContext<ShopContextType | undefined>(undefined);
+export const ShopContext = createContext<ShopContextType | undefined>(undefined)
 
-interface ShopProviderProps {
-  children: ReactNode;
+interface ShopContextProviderProps {
+    children:ReactNode
 }
 
-const ShopContextProvider: React.FC<ShopProviderProps> = ({ children }) => {
-    const backendUrl = process.env.REACT_APP_API_URL || "https://mentorship-1-jpz3.onrender.com";
+const  ShopContextProvider:React.FC <ShopContextProviderProps> = (props)=> {
 
-    const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
-    const [userRole, setUserRole] = useState<'admin' | 'mentor' | 'mentee' | undefined>(undefined);
-    const setAuth = (auth: boolean) => {
-        setIsAuthenticated(auth);
-    };
-    const value: ShopContextType = {
-        backendUrl,
-        isAuthenticated,
-        userRole,
-        setAuth
-    };
+    const backendUrl = "https://mentorshipbackend-fzoc.onrender.com"
 
-    return (
-        <ShopContext.Provider value={value}>
-            {children}
-        </ShopContext.Provider>
-    );
-};
-
-//
-export const useShopContext = () => {
-    const context = useContext(ShopContext);
-    if (!context) {
-        throw new Error("useShopContext must be used within a ShopProvider");
+    const Value : ShopContextType = {
+        backendUrl
     }
-    return context;
-};
+  return (
+<ShopContext.Provider value={Value}>
+    {props.children}
 
-export default ShopContextProvider;
+</ShopContext.Provider>
+  )
+}
+
+export const useShopContext = ()=> {
+    return useContext(ShopContext)
+}
+
+export default ShopContextProvider
