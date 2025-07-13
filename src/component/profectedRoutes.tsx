@@ -40,4 +40,4 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   return <Navigate to="/unauthorized" replace />
 }
 
-export default ProtectedRoute 
+export default ProtectedRoute;

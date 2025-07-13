@@ -1,33 +1,36 @@
-import React, { type ReactNode } from 'react'
-import { createContext,useContext, } from 'react'
+import { createContext, useContext } from 'react'
+import type { ReactNode, FC } from 'react'
 
 interface ShopContextType {
-    backendUrl : string;
+    backendUrl: string
 }
 
 export const ShopContext = createContext<ShopContextType | undefined>(undefined)
 
 interface ShopContextProviderProps {
-    children:ReactNode
+    children: ReactNode
 }
 
-const  ShopContextProvider:React.FC <ShopContextProviderProps> = (props)=> {
+const ShopContextProvider: FC<ShopContextProviderProps> = (props) => {
+    const backendUrl = "https://mentorship-1-jpz3.onrender.com"
 
-    const backendUrl = "https://mentorshipbackend-fzoc.onrender.com"
-
-    const Value : ShopContextType = {
+    const value: ShopContextType = {
         backendUrl
     }
-  return (
-<ShopContext.Provider value={Value}>
-    {props.children}
 
-</ShopContext.Provider>
-  )
+    return (
+        <ShopContext.Provider value={value}>
+            {props.children}
+        </ShopContext.Provider>
+    )
 }
 
-export const useShopContext = ()=> {
-    return useContext(ShopContext)
+export const useShopContext = () => {
+    const context = useContext(ShopContext)
+    if (context === undefined) {
+        throw new Error('useShopContext must be used within a ShopContextProvider')
+    }
+    return context
 }
 
 export default ShopContextProvider

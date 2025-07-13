@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useAuth } from '../auth/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
@@ -17,6 +17,7 @@ const AdminDashboard: React.FC = () => {
   const { backendUrl } = useShopContext() || {};
   const [activeSection, setActiveSection] = useState('createMentor');
 
+
   // State for Create Mentor form
   const [mentorForm, setMentorForm] = useState({
     name: '',
@@ -27,15 +28,15 @@ const AdminDashboard: React.FC = () => {
     password: '',
     experience: '',
   });
-  const [formLoading, setFormLoading] = useState(false);
+   const [formLoading, setFormLoading] = useState(false);
   const [formError, setFormError] = useState('');
   const [formSuccess, setFormSuccess] = useState('');
 
-  const [mentors, setMentors] = useState<any[]>([]);
+ const [mentors, setMentors] = useState<any[]>([]);
   const [mentorsLoading, setMentorsLoading] = useState(false);
   const [mentorsError, setMentorsError] = useState('');
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (activeSection === 'viewMentors') {
       fetchMentors();
     }

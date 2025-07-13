@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import  { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../auth/AuthContext';
 
@@ -164,11 +164,13 @@ const BecomeMentor: React.FC = () => {
   const nextStep = () => {
     if (validateStep(currentStep)) {
       setCurrentStep(prev => Math.min(prev + 1, 5));
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     }
   };
 
   const prevStep = () => {
     setCurrentStep(prev => Math.max(prev - 1, 1));
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -176,7 +178,7 @@ const BecomeMentor: React.FC = () => {
     if (validateStep(currentStep)) {
       try {
         console.log('Form submitted:', formData);
-        alert('Application submitted successfully! We will review your application and get back to you within 3-5 business days.');
+        alert('Application submitted successfully! Our team will review your application within 3-5 business days.');
         navigate('/profile');
       } catch (error) {
         console.error('Error submitting application:', error);
@@ -187,16 +189,16 @@ const BecomeMentor: React.FC = () => {
 
   if (!isAuthenticated) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-50">
-        <div className="bg-white p-8 rounded-xl shadow-lg max-w-md text-center">
-          <div className="text-indigo-600 text-5xl mb-4">🔒</div>
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 to-blue-50">
+        <div className="bg-white p-8 rounded-xl shadow-lg max-w-md w-full mx-4 text-center">
+          <div className="text-blue-600 text-5xl mb-4">🔒</div>
           <h2 className="text-2xl font-bold text-gray-800 mb-4">Authentication Required</h2>
-          <p className="text-gray-600 mb-6">Please log in to access the mentor application form.</p>
+          <p className="text-gray-600 mb-6">Please sign in to access the mentor application form.</p>
           <button 
             onClick={() => navigate('/login')}
-            className="w-full bg-indigo-600 text-white px-6 py-3 rounded-lg hover:bg-indigo-700 transition-colors shadow-md"
+            className="w-full bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg transition-colors duration-200 shadow-sm"
           >
-            Go to Login
+            Sign In
           </button>
         </div>
       </div>
@@ -204,18 +206,18 @@ const BecomeMentor: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-50">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50">
       {/* Header */}
-      <div className="bg-white shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center py-6">
+      <header className="bg-white shadow-sm">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+          <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
             <div>
-              <h1 className="text-3xl font-bold text-gray-900">Join Our Mentor Network</h1>
-              <p className="text-gray-600 mt-2">Share your knowledge and help shape the next generation of professionals</p>
+              <h1 className="text-3xl font-bold text-gray-900">Become a Mentor</h1>
+              <p className="text-gray-600 mt-2">Share your expertise and guide the next generation of professionals</p>
             </div>
             <button
               onClick={() => navigate('/profile')}
-              className="flex items-center text-indigo-600 hover:text-indigo-800"
+              className="flex items-center text-blue-600 hover:text-blue-800 transition-colors duration-200"
             >
               <svg className="w-5 h-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
@@ -224,20 +226,20 @@ const BecomeMentor: React.FC = () => {
             </button>
           </div>
         </div>
-      </div>
+      </header>
 
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Progress Steps */}
         <div className="mb-12">
           <div className="flex items-center justify-between mb-4">
             {[1, 2, 3, 4, 5].map(step => (
               <div key={step} className="flex flex-col items-center">
-                <div className={`w-12 h-12 rounded-full flex items-center justify-center text-lg font-semibold mb-2 ${
+                <div className={`w-12 h-12 rounded-full flex items-center justify-center text-lg font-semibold mb-2 transition-colors duration-200 ${
                   step < currentStep 
                     ? 'bg-green-100 text-green-600' 
                     : step === currentStep 
-                      ? 'bg-indigo-600 text-white shadow-lg' 
-                      : 'bg-white text-gray-400 border-2 border-gray-300'
+                      ? 'bg-blue-600 text-white shadow-md' 
+                      : 'bg-white text-gray-400 border-2 border-gray-200'
                 }`}>
                   {step}
                 </div>
@@ -256,19 +258,19 @@ const BecomeMentor: React.FC = () => {
           <div className="relative">
             <div className="absolute top-1/2 h-1 bg-gray-200 w-full -z-10"></div>
             <div 
-              className="absolute top-1/2 h-1 bg-indigo-600 transition-all duration-300 -z-10" 
+              className="absolute top-1/2 h-1 bg-blue-600 transition-all duration-300 -z-10" 
               style={{ width: `${(currentStep - 1) * 25}%` }}
             ></div>
           </div>
         </div>
 
-        <form onSubmit={handleSubmit} className="bg-white rounded-xl shadow-lg overflow-hidden">
+        <form onSubmit={handleSubmit} className="bg-white rounded-xl shadow-md overflow-hidden">
           {/* Step 1: Personal Information */}
           {currentStep === 1 && (
             <div className="p-8">
               <div className="mb-8">
                 <h2 className="text-2xl font-bold text-gray-900 mb-2">Personal Information</h2>
-                <p className="text-gray-600">Tell us about yourself</p>
+                <p className="text-gray-600">Let's start with some basic details about you</p>
               </div>
               
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -281,8 +283,8 @@ const BecomeMentor: React.FC = () => {
                     name="firstName"
                     value={formData.firstName}
                     onChange={handleInputChange}
-                    className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent ${
-                      errors.firstName ? 'border-red-500' : 'border-gray-300'
+                    className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors duration-200 ${
+                      errors.firstName ? 'border-red-500' : 'border-gray-300 hover:border-gray-400'
                     }`}
                     placeholder="John"
                   />
@@ -298,8 +300,8 @@ const BecomeMentor: React.FC = () => {
                     name="lastName"
                     value={formData.lastName}
                     onChange={handleInputChange}
-                    className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent ${
-                      errors.lastName ? 'border-red-500' : 'border-gray-300'
+                    className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors duration-200 ${
+                      errors.lastName ? 'border-red-500' : 'border-gray-300 hover:border-gray-400'
                     }`}
                     placeholder="Doe"
                   />
@@ -315,8 +317,8 @@ const BecomeMentor: React.FC = () => {
                     name="email"
                     value={formData.email}
                     onChange={handleInputChange}
-                    className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent ${
-                      errors.email ? 'border-red-500' : 'border-gray-300'
+                    className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors duration-200 ${
+                      errors.email ? 'border-red-500' : 'border-gray-300 hover:border-gray-400'
                     }`}
                     placeholder="john.doe@example.com"
                   />
@@ -332,8 +334,8 @@ const BecomeMentor: React.FC = () => {
                     name="phone"
                     value={formData.phone}
                     onChange={handleInputChange}
-                    className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent ${
-                      errors.phone ? 'border-red-500' : 'border-gray-300'
+                    className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors duration-200 ${
+                      errors.phone ? 'border-red-500' : 'border-gray-300 hover:border-gray-400'
                     }`}
                     placeholder="+1 (555) 123-4567"
                   />
@@ -349,8 +351,8 @@ const BecomeMentor: React.FC = () => {
                     name="location"
                     value={formData.location}
                     onChange={handleInputChange}
-                    className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent ${
-                      errors.location ? 'border-red-500' : 'border-gray-300'
+                    className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors duration-200 ${
+                      errors.location ? 'border-red-500' : 'border-gray-300 hover:border-gray-400'
                     }`}
                     placeholder="City, Country"
                   />
@@ -360,7 +362,7 @@ const BecomeMentor: React.FC = () => {
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">LinkedIn Profile</label>
                   <div className="flex">
-                    <span className="inline-flex items-center px-3 rounded-l-lg border border-r-0 border-gray-300 bg-gray-50 text-gray-500">
+                    <span className="inline-flex items-center px-3 rounded-l-lg border border-r-0 border-gray-300 bg-gray-50 text-gray-500 text-sm">
                       linkedin.com/in/
                     </span>
                     <input
@@ -368,7 +370,7 @@ const BecomeMentor: React.FC = () => {
                       name="linkedin"
                       value={formData.linkedin}
                       onChange={handleInputChange}
-                      className="flex-1 min-w-0 block w-full px-3 py-3 rounded-none rounded-r-lg border border-gray-300 focus:ring-indigo-500 focus:border-indigo-500"
+                      className="flex-1 min-w-0 block w-full px-3 py-3 rounded-none rounded-r-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400 transition-colors duration-200"
                       placeholder="yourusername"
                     />
                   </div>
@@ -377,7 +379,7 @@ const BecomeMentor: React.FC = () => {
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">GitHub Profile</label>
                   <div className="flex">
-                    <span className="inline-flex items-center px-3 rounded-l-lg border border-r-0 border-gray-300 bg-gray-50 text-gray-500">
+                    <span className="inline-flex items-center px-3 rounded-l-lg border border-r-0 border-gray-300 bg-gray-50 text-gray-500 text-sm">
                       github.com/
                     </span>
                     <input
@@ -385,7 +387,7 @@ const BecomeMentor: React.FC = () => {
                       name="github"
                       value={formData.github}
                       onChange={handleInputChange}
-                      className="flex-1 min-w-0 block w-full px-3 py-3 rounded-none rounded-r-lg border border-gray-300 focus:ring-indigo-500 focus:border-indigo-500"
+                      className="flex-1 min-w-0 block w-full px-3 py-3 rounded-none rounded-r-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400 transition-colors duration-200"
                       placeholder="yourusername"
                     />
                   </div>
@@ -399,7 +401,7 @@ const BecomeMentor: React.FC = () => {
             <div className="p-8">
               <div className="mb-8">
                 <h2 className="text-2xl font-bold text-gray-900 mb-2">Professional Background</h2>
-                <p className="text-gray-600">Tell us about your career experience</p>
+                <p className="text-gray-600">Tell us about your career and experience</p>
               </div>
               
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -412,8 +414,8 @@ const BecomeMentor: React.FC = () => {
                     name="currentRole"
                     value={formData.currentRole}
                     onChange={handleInputChange}
-                    className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent ${
-                      errors.currentRole ? 'border-red-500' : 'border-gray-300'
+                    className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors duration-200 ${
+                      errors.currentRole ? 'border-red-500' : 'border-gray-300 hover:border-gray-400'
                     }`}
                     placeholder="Senior Software Engineer"
                   />
@@ -429,8 +431,8 @@ const BecomeMentor: React.FC = () => {
                     name="company"
                     value={formData.company}
                     onChange={handleInputChange}
-                    className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent ${
-                      errors.company ? 'border-red-500' : 'border-gray-300'
+                    className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors duration-200 ${
+                      errors.company ? 'border-red-500' : 'border-gray-300 hover:border-gray-400'
                     }`}
                     placeholder="Acme Inc."
                   />
@@ -445,8 +447,8 @@ const BecomeMentor: React.FC = () => {
                     name="yearsOfExperience"
                     value={formData.yearsOfExperience}
                     onChange={handleInputChange}
-                    className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent ${
-                      errors.yearsOfExperience ? 'border-red-500' : 'border-gray-300'
+                    className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors duration-200 ${
+                      errors.yearsOfExperience ? 'border-red-500' : 'border-gray-300 hover:border-gray-400'
                     }`}
                   >
                     <option value="">Select your experience</option>
@@ -467,8 +469,8 @@ const BecomeMentor: React.FC = () => {
                     name="industry"
                     value={formData.industry}
                     onChange={handleInputChange}
-                    className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent ${
-                      errors.industry ? 'border-red-500' : 'border-gray-300'
+                    className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors duration-200 ${
+                      errors.industry ? 'border-red-500' : 'border-gray-300 hover:border-gray-400'
                     }`}
                   >
                     <option value="">Select your industry</option>
@@ -488,8 +490,8 @@ const BecomeMentor: React.FC = () => {
                     name="specialization"
                     value={formData.specialization}
                     onChange={handleInputChange}
-                    className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent ${
-                      errors.specialization ? 'border-red-500' : 'border-gray-300'
+                    className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors duration-200 ${
+                      errors.specialization ? 'border-red-500' : 'border-gray-300 hover:border-gray-400'
                     }`}
                     placeholder="e.g., Full-stack development, Machine Learning, DevOps"
                   />
@@ -504,7 +506,7 @@ const BecomeMentor: React.FC = () => {
             <div className="p-8">
               <div className="mb-8">
                 <h2 className="text-2xl font-bold text-gray-900 mb-2">Skills & Expertise</h2>
-                <p className="text-gray-600">Select your technical skills and mentorship areas</p>
+                <p className="text-gray-600">Select your technical skills and areas where you can mentor others</p>
               </div>
               
               <div className="space-y-8">
@@ -515,12 +517,12 @@ const BecomeMentor: React.FC = () => {
                   </label>
                   <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
                     {skillOptions.map(skill => (
-                      <label key={skill} className="flex items-center space-x-2">
+                      <label key={skill} className="flex items-center space-x-2 cursor-pointer hover:bg-gray-50 p-2 rounded transition-colors duration-200">
                         <input
                           type="checkbox"
                           checked={formData.skills.includes(skill)}
                           onChange={() => handleArrayChange('skills', skill)}
-                          className="rounded border-gray-300 text-indigo-600 focus:ring-indigo-500 h-5 w-5"
+                          className="rounded border-gray-300 text-blue-600 focus:ring-blue-500 h-5 w-5"
                         />
                         <span className="text-sm text-gray-700">{skill}</span>
                       </label>
@@ -535,12 +537,12 @@ const BecomeMentor: React.FC = () => {
                   </label>
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
                     {mentorshipAreas.map(area => (
-                      <label key={area} className="flex items-center space-x-2">
+                      <label key={area} className="flex items-center space-x-2 cursor-pointer hover:bg-gray-50 p-2 rounded transition-colors duration-200">
                         <input
                           type="checkbox"
                           checked={formData.mentorshipAreas.includes(area)}
                           onChange={() => handleArrayChange('mentorshipAreas', area)}
-                          className="rounded border-gray-300 text-indigo-600 focus:ring-indigo-500 h-5 w-5"
+                          className="rounded border-gray-300 text-blue-600 focus:ring-blue-500 h-5 w-5"
                         />
                         <span className="text-sm text-gray-700">{area}</span>
                       </label>
@@ -557,7 +559,7 @@ const BecomeMentor: React.FC = () => {
                       ...prev,
                       certifications: e.target.value.split(',').map(cert => cert.trim()).filter(cert => cert)
                     }))}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent hover:border-gray-400 transition-colors duration-200"
                     rows={3}
                     placeholder="AWS Certified Solutions Architect, Google Cloud Professional, etc."
                   />
@@ -571,7 +573,7 @@ const BecomeMentor: React.FC = () => {
             <div className="p-8">
               <div className="mb-8">
                 <h2 className="text-2xl font-bold text-gray-900 mb-2">Mentorship Details</h2>
-                <p className="text-gray-600">Tell us about your mentoring approach</p>
+                <p className="text-gray-600">Define your mentoring approach and availability</p>
               </div>
               
               <div className="space-y-6">
@@ -584,8 +586,8 @@ const BecomeMentor: React.FC = () => {
                       name="availability"
                       value={formData.availability}
                       onChange={handleInputChange}
-                      className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent ${
-                        errors.availability ? 'border-red-500' : 'border-gray-300'
+                      className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors duration-200 ${
+                        errors.availability ? 'border-red-500' : 'border-gray-300 hover:border-gray-400'
                       }`}
                     >
                       <option value="">Select your availability</option>
@@ -610,8 +612,8 @@ const BecomeMentor: React.FC = () => {
                         name="hourlyRate"
                         value={formData.hourlyRate}
                         onChange={handleInputChange}
-                        className={`w-full pl-8 pr-4 py-3 border rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent ${
-                          errors.hourlyRate ? 'border-red-500' : 'border-gray-300'
+                        className={`w-full pl-8 pr-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors duration-200 ${
+                          errors.hourlyRate ? 'border-red-500' : 'border-gray-300 hover:border-gray-400'
                         }`}
                         placeholder="50"
                         min="0"
@@ -626,7 +628,7 @@ const BecomeMentor: React.FC = () => {
                       name="maxMentees"
                       value={formData.maxMentees}
                       onChange={handleInputChange}
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent hover:border-gray-400 transition-colors duration-200"
                     >
                       <option value="">Select maximum mentees</option>
                       <option value="1-2">1-2 mentees</option>
@@ -645,8 +647,8 @@ const BecomeMentor: React.FC = () => {
                     name="bio"
                     value={formData.bio}
                     onChange={handleInputChange}
-                    className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent ${
-                      errors.bio ? 'border-red-500' : 'border-gray-300'
+                    className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors duration-200 ${
+                      errors.bio ? 'border-red-500' : 'border-gray-300 hover:border-gray-400'
                     }`}
                     rows={5}
                     placeholder="Tell us about your background, experience, and what makes you a great mentor..."
@@ -662,8 +664,8 @@ const BecomeMentor: React.FC = () => {
                     name="motivation"
                     value={formData.motivation}
                     onChange={handleInputChange}
-                    className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent ${
-                      errors.motivation ? 'border-red-500' : 'border-gray-300'
+                    className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors duration-200 ${
+                      errors.motivation ? 'border-red-500' : 'border-gray-300 hover:border-gray-400'
                     }`}
                     rows={5}
                     placeholder="Share your motivation for becoming a mentor and how you plan to help others..."
@@ -677,7 +679,7 @@ const BecomeMentor: React.FC = () => {
                     name="successStories"
                     value={formData.successStories}
                     onChange={handleInputChange}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent hover:border-gray-400 transition-colors duration-200"
                     rows={5}
                     placeholder="Share any success stories from your career or previous mentoring experiences..."
                   />
@@ -732,13 +734,13 @@ const BecomeMentor: React.FC = () => {
               </div>
 
               <div className="space-y-4 mt-8">
-                <label className="flex items-start space-x-3">
+                <label className="flex items-start space-x-3 cursor-pointer">
                   <input
                     type="checkbox"
                     name="agreeToTerms"
                     checked={formData.agreeToTerms}
                     onChange={handleInputChange}
-                    className="mt-1 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500 h-5 w-5"
+                    className="mt-1 rounded border-gray-300 text-blue-600 focus:ring-blue-500 h-5 w-5"
                   />
                   <div>
                     <span className="text-sm font-medium text-gray-700">I agree to the Terms and Conditions <span className="text-red-500">*</span></span>
@@ -746,13 +748,13 @@ const BecomeMentor: React.FC = () => {
                   </div>
                 </label>
 
-                <label className="flex items-start space-x-3">
+                <label className="flex items-start space-x-3 cursor-pointer">
                   <input
                     type="checkbox"
                     name="agreeToPrivacy"
                     checked={formData.agreeToPrivacy}
                     onChange={handleInputChange}
-                    className="mt-1 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500 h-5 w-5"
+                    className="mt-1 rounded border-gray-300 text-blue-600 focus:ring-blue-500 h-5 w-5"
                   />
                   <div>
                     <span className="text-sm font-medium text-gray-700">I agree to the Privacy Policy <span className="text-red-500">*</span></span>
@@ -760,13 +762,13 @@ const BecomeMentor: React.FC = () => {
                   </div>
                 </label>
 
-                <label className="flex items-start space-x-3">
+                <label className="flex items-start space-x-3 cursor-pointer">
                   <input
                     type="checkbox"
                     name="agreeToCodeOfConduct"
                     checked={formData.agreeToCodeOfConduct}
                     onChange={handleInputChange}
-                    className="mt-1 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500 h-5 w-5"
+                    className="mt-1 rounded border-gray-300 text-blue-600 focus:ring-blue-500 h-5 w-5"
                   />
                   <div>
                     <span className="text-sm font-medium text-gray-700">I agree to follow the Code of Conduct <span className="text-red-500">*</span></span>
@@ -778,15 +780,15 @@ const BecomeMentor: React.FC = () => {
           )}
 
           {/* Navigation Buttons */}
-          <div className="flex justify-between p-6 border-t border-gray-200">
+          <div className="flex justify-between p-6 border-t border-gray-200 bg-gray-50">
             <button
               type="button"
               onClick={prevStep}
               disabled={currentStep === 1}
-              className={`px-6 py-3 border rounded-lg font-medium ${
+              className={`px-6 py-3 border rounded-lg font-medium transition-colors duration-200 ${
                 currentStep === 1 
                   ? 'border-gray-300 text-gray-400 cursor-not-allowed' 
-                  : 'border-gray-300 text-gray-700 hover:bg-gray-50'
+                  : 'border-gray-300 text-gray-700 hover:bg-gray-100'
               }`}
             >
               Previous
@@ -796,21 +798,21 @@ const BecomeMentor: React.FC = () => {
               <button
                 type="button"
                 onClick={nextStep}
-                className="px-6 py-3 bg-indigo-600 text-white rounded-lg font-medium hover:bg-indigo-700 shadow-sm"
+                className="px-6 py-3 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors duration-200 shadow-sm"
               >
                 Continue
               </button>
             ) : (
               <button
                 type="submit"
-                className="px-6 py-3 bg-green-600 text-white rounded-lg font-medium hover:bg-green-700 shadow-sm"
+                className="px-6 py-3 bg-green-600 text-white rounded-lg font-medium hover:bg-green-700 transition-colors duration-200 shadow-sm"
               >
                 Submit Application
               </button>
             )}
           </div>
         </form>
-      </div>
+      </main>
     </div>
   );
 };

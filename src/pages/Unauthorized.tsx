@@ -65,4 +65,4 @@ function Unauthorized() {
   )
 }
 
-export default Unauthorized 
+export default Unauthorized;

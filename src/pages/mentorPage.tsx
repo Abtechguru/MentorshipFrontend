@@ -21,7 +21,7 @@ interface Mentor {
   mentorshipStyle?: string;
 }
 
-function MentorDiscovery() {
+function MentorPage() {
   const context = useShopContext()
   const backendUrl = context?.backendUrl || ""
   const { user } = useAuth()
@@ -505,7 +505,7 @@ function MentorDiscovery() {
         )}
       </div>
     </div>
-  )
+ ) 
 }
 
-export default MentorDiscovery
+export default MentorPage;

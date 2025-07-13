@@ -2,11 +2,11 @@ import { Route,Routes, useNavigate } from 'react-router-dom'
 import { useEffect } from 'react'
 import './App.css'
 import Home from './pages/Home'
-import Login from './auth/login'
+import Login from './auth/Login'
 import Profile from './pages/profile'
 import MentorsPage from './pages/MentorPage'
 import Unauthorized from './pages/Unauthorized'
-import BecomeMentor from './pages/becomeMentor'
+import BecomeMentor from './pages/BecomeMentor'
 import { useAuth } from './auth/AuthContext'
 import AdminLogin from './auth/AdminLogin'
 import AdminDashboard from './pages/AdminDashboard'
@@ -59,4 +59,4 @@ function App ()  {
   )
 }
 
-export default App
+export default App;

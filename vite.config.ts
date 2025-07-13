@@ -6,5 +6,6 @@ export default defineConfig({
   plugins: [react(), tailwindcss()],
 esbuild: {
     jsxInject: `import React from 'react'` // If using JSX
+     
   }
 })
